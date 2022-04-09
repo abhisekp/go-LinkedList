@@ -1,51 +1,50 @@
 package core
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/abhisekp/go-linkedlist/src/internal"
 )
 
-type ILinkedList interface {
+type ILinkedList[T NodeDatatype] interface {
 	LinkedListIterable
-	Head() *Node
-	Add(item interface{}, datatype string) *LinkedList
-	Pop() (interface{}, string)
+	fmt.Stringer
+	Head() *Node[T]
+	Add(data T) *LinkedList[T]
+	Pop() *T
 	Size() uint64
 	String() string
 }
 
-type LinkedList struct {
-	head *Node
-	// tail *Node
+type LinkedList[T NodeDatatype] struct {
+	head *Node[T]
+	// tail *Node[T]
 	size uint64
 }
 
-func NewLinkedList(head *Node) ILinkedList {
-	ll := LinkedList{}
-	if head == nil {
-		return &ll
-	}
+func NewLinkedList[T NodeDatatype]() ILinkedList[T] {
+	ll := LinkedList[T]{}
 
-	data, datatype := head.Data()
-
-	return ll.Add(data, datatype)
+	return &ll
 }
 
-func (ll *LinkedList) Iterator() ILinkedListIterator {
+func (ll *LinkedList[T]) Iterator() ILinkedListIterator {
 	return NewLinkedListIterator(ll)
 }
 
-func (ll *LinkedList) Iterator_() internal.Iterator {
+func (ll *LinkedList[T]) Iterator_() internal.Iterator {
 	return ll.Iterator()
 }
 
-func (ll *LinkedList) Head() *Node {
+func (ll *LinkedList[T]) Head() *Node[T] {
 	return ll.head
 }
 
-func (ll *LinkedList) Add(data interface{}, datatype string) *LinkedList {
-	node := NewNode(data, datatype, nil)
+func (ll *LinkedList[T]) Add(data T) *LinkedList[T] {
+	NilNode := (*Node[T])(nil)
+
+	node := NewNode[T](data, NilNode)
 
 	nextNode := ll.Head()
 
@@ -63,12 +62,14 @@ func (ll *LinkedList) Add(data interface{}, datatype string) *LinkedList {
 	return ll
 }
 
-func (ll *LinkedList) Pop() (interface{}, string) {
+func (ll *LinkedList[T]) Pop() *T {
+	NilNode := (*Node[T])(nil)
+
 	nextNode := ll.Head()
-	var prevNode *Node
+	var prevNode *Node[T]
 
 	if nextNode == nil {
-		return nil, "nil"
+		return nil
 	}
 
 	for nextNode.Next() != nil {
@@ -77,7 +78,7 @@ func (ll *LinkedList) Pop() (interface{}, string) {
 	}
 
 	if prevNode != nil {
-		prevNode.SetNext(nil)
+		prevNode.SetNext(NilNode)
 	} else {
 		ll.head = nil
 	}
@@ -87,11 +88,11 @@ func (ll *LinkedList) Pop() (interface{}, string) {
 	return nextNode.Data()
 }
 
-func (ll *LinkedList) Size() uint64 {
+func (ll *LinkedList[T]) Size() uint64 {
 	return ll.size
 }
 
-func (ll *LinkedList) String() string {
+func (ll *LinkedList[T]) String() string {
 
 	var sb strings.Builder
 
@@ -101,7 +102,7 @@ func (ll *LinkedList) String() string {
 
 	for iterator.HasNext() {
 		item := iterator.Next()
-		sb.WriteString(item.(*Node).String())
+		sb.WriteString(item.(*Node[T]).String())
 		if iterator.HasNext() {
 			sb.WriteString(", ")
 		}

@@ -5,83 +5,53 @@ import (
 	"strconv"
 )
 
-type Node struct {
-	data     interface{}
-	datatype string
-	next     *Node
+type INode[T NodeDatatype] interface {
+	SetNext(node *Node[T]) *Node[T]
+	Next() *Node[T]
+	SetData(data T, datatype string) *Node[T]
+	Data() (T, string)
+	String() string
+}
+
+func NewNode[T NodeDatatype](data T, next *Node[T]) *Node[T] {
+	return &Node[T]{data: data, next: next}
+}
+
+type Node[T NodeDatatype] struct {
+	fmt.Stringer
+	data T
+	next *Node[T]
 	// prev     *Node
 }
 
-func NewNode(data interface{}, datatype string, next *Node) *Node {
-	return &Node{data, datatype, next}
-}
-
-func (n *Node) SetNext(node *Node) *Node {
+func (n *Node[T]) SetNext(node *Node[T]) *Node[T] {
 	n.next = node
 	return n
 }
 
-func (n *Node) Next() *Node {
+func (n *Node[T]) Next() *Node[T] {
 	return n.next
 }
 
-func (n *Node) SetData(data interface{}, datatype string) *Node {
+func (n *Node[T]) SetData(data T) *Node[T] {
 	n.data = data
-	n.datatype = datatype
-
-	if datatype == "" {
-		n.datatype = "string"
-	}
 
 	return n
 }
 
-func (n *Node) Data() (interface{}, string) {
-	return n.data, n.datatype
+func (n *Node[T]) Data() *T {
+	return &n.data
 }
 
-func (n *Node) String() string {
-	switch n.datatype {
-	case "string":
-		dataStr := n.data.(string)
-		return fmt.Sprintf("\"%s\"", dataStr)
-	case "int":
-		return strconv.Itoa(n.data.(int))
-	case "float":
-		return strconv.FormatFloat(n.data.(float64), 'f', -1, 64)
-	case "bool":
-		if n.data.(bool) {
-			return "true"
-		}
-		return "false"
-	case "uint":
-		return strconv.Itoa(int(n.data.(uint)))
-	case "uint8":
-		return strconv.Itoa(int(n.data.(uint8)))
-	case "uint16":
-		return strconv.Itoa(int(n.data.(uint16)))
-	case "uint32":
-		return strconv.Itoa(int(n.data.(uint32)))
-	case "uint64":
-		return strconv.Itoa(int(n.data.(uint64)))
-	case "int8":
-		return strconv.Itoa(int(n.data.(int8)))
-	case "int16":
-		return strconv.Itoa(int(n.data.(int16)))
-	case "int32":
-		return strconv.Itoa(int(n.data.(int32)))
-	case "int64":
-		return strconv.Itoa(int(n.data.(int64)))
-	case "float32":
-		return strconv.FormatFloat(float64(n.data.(float32)), 'f', -1, 32)
-	case "float64":
-		return strconv.FormatFloat(n.data.(float64), 'f', -1, 64)
-	case "rune":
-		dataStr := string(n.data.(rune))
-		return fmt.Sprintf("'%s'", dataStr)
-	case "nil":
-		return ""
+func (n *Node[T]) String() string {
+	datatype := fmt.Sprintf("%T", n.data)
+	data := fmt.Sprintf("%v", n.data)
+	// fmt.Printf("{%v} = [%v]\n", datatype, data)
+	if datatype == "string" {
+		return fmt.Sprintf("%s", strconv.Quote(data))
+	} else if datatype == "int32" {
+		return strconv.QuoteRune(rune(fmt.Sprintf("%c", n.data)[0]))
+	} else {
+		return data
 	}
-
-	return ""
 }

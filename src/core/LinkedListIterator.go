@@ -7,23 +7,23 @@ type ILinkedListIterator interface {
 	Reset() bool
 }
 
-type LinkedListIterator struct {
-	curr *Node
-	list *LinkedList
+type LinkedListIterator[T NodeDatatype] struct {
+	curr *Node[T]
+	list *LinkedList[T]
 }
 
-func NewLinkedListIterator(list *LinkedList) ILinkedListIterator {
-	return &LinkedListIterator{
+func NewLinkedListIterator[T NodeDatatype](list *LinkedList[T]) ILinkedListIterator {
+	return &LinkedListIterator[T]{
 		curr: list.head,
 		list: list,
 	}
 }
 
-func (llI *LinkedListIterator) HasNext() bool {
+func (llI *LinkedListIterator[T]) HasNext() bool {
 	return llI.curr != nil
 }
 
-func (llI *LinkedListIterator) Next() interface{} {
+func (llI *LinkedListIterator[T]) Next() any {
 	if llI.curr == nil {
 		return llI.curr
 	}
@@ -33,7 +33,7 @@ func (llI *LinkedListIterator) Next() interface{} {
 	return curr
 }
 
-func (llI *LinkedListIterator) Reset() bool {
+func (llI *LinkedListIterator[T]) Reset() bool {
 	llI.curr = llI.list.head
 	return true
 }

@@ -1,8 +1,6 @@
 package core
 
-import "github.com/abhisekp/go-linkedlist/src/internal"
-
 type LinkedListIterable interface {
-	internal.Iterable
+	// internal.Iterable
 	Iterator() ILinkedListIterator
 }
