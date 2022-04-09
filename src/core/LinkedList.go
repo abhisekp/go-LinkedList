@@ -2,9 +2,13 @@ package core
 
 import (
 	"bytes"
+
+	"github.com/abhisekp/go-linkedlist/src/internal"
 )
 
 type ILinkedList interface {
+	LinkedListIterable
+	Head() *Node
 	Add(item interface{}, datatype string) *LinkedList
 	Pop() (interface{}, string)
 	Size() uint64
@@ -12,7 +16,6 @@ type ILinkedList interface {
 }
 
 type LinkedList struct {
-	// internal.Iterable
 	head *Node
 	// tail *Node
 	size uint64
@@ -29,13 +32,25 @@ func NewLinkedList(head *Node) ILinkedList {
 	return ll.Add(data, datatype)
 }
 
+func (ll *LinkedList) Iterator() ILinkedListIterator {
+	return NewLinkedListIterator(ll)
+}
+
+func (ll *LinkedList) Iterator_() internal.Iterator {
+	return ll.Iterator()
+}
+
+func (ll *LinkedList) Head() *Node {
+	return ll.head
+}
+
 func (ll *LinkedList) Add(data interface{}, datatype string) *LinkedList {
 	node := NewNode(data, datatype, nil)
 
 	nextNode := ll.Head()
 
 	if nextNode == nil {
-		ll.SetHead(node)
+		ll.head = node
 	} else {
 		for nextNode.Next() != nil {
 			nextNode = nextNode.Next()
@@ -48,17 +63,32 @@ func (ll *LinkedList) Add(data interface{}, datatype string) *LinkedList {
 	return ll
 }
 
+func (ll *LinkedList) Pop() (interface{}, string) {
+	nextNode := ll.Head()
+	var prevNode *Node
+
+	if nextNode == nil {
+		return nil, "nil"
+	}
+
+	for nextNode.Next() != nil {
+		prevNode = nextNode
+		nextNode = nextNode.Next()
+	}
+
+	if prevNode != nil {
+		prevNode.SetNext(nil)
+	} else {
+		ll.head = nil
+	}
+
+	ll.size--
+
+	return nextNode.Data()
+}
+
 func (ll *LinkedList) Size() uint64 {
 	return ll.size
-}
-
-func (ll *LinkedList) SetHead(node *Node) *LinkedList {
-	ll.head = node
-	return ll
-}
-
-func (ll *LinkedList) Head() *Node {
-	return ll.head
 }
 
 func (ll *LinkedList) String() string {
@@ -79,32 +109,4 @@ func (ll *LinkedList) String() string {
 	buffer.WriteString("]")
 
 	return buffer.String()
-}
-
-func (ll *LinkedList) Pop() (interface{}, string) {
-	nextNode := ll.Head()
-	var prevNode *Node
-
-	if nextNode == nil {
-		return nil, "nil"
-	}
-
-	for nextNode.Next() != nil {
-		prevNode = nextNode
-		nextNode = nextNode.Next()
-	}
-
-	if prevNode != nil {
-		prevNode.SetNext(nil)
-	} else {
-		ll.SetHead(nil)
-	}
-
-	ll.size--
-
-	return nextNode.Data()
-}
-
-func (ll *LinkedList) Iterator() ILinkedListIterator {
-	return NewLinkedListIterator(ll)
 }
