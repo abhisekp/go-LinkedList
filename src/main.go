@@ -4,10 +4,6 @@ import (
 	"github.com/abhisekp/go-linkedlist/src/core"
 )
 
-type N interface {
-	~int32
-}
-
 func main() {
 	ll := core.NewLinkedList[any]().
 		Add(1).
