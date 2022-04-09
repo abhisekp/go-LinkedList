@@ -1,7 +1,7 @@
 package core
 
 import (
-	"bytes"
+	"strings"
 
 	"github.com/abhisekp/go-linkedlist/src/internal"
 )
@@ -92,21 +92,22 @@ func (ll *LinkedList) Size() uint64 {
 }
 
 func (ll *LinkedList) String() string {
-	var buffer bytes.Buffer
 
-	buffer.WriteString("[")
+	var sb strings.Builder
 
-	node := ll.Head()
+	sb.WriteString("[")
 
-	for node != nil {
-		buffer.WriteString(node.String())
-		node = node.Next()
-		if node != nil {
-			buffer.WriteString(", ")
+	iterator := ll.Iterator()
+
+	for iterator.HasNext() {
+		item := iterator.Next()
+		sb.WriteString(item.(*Node).String())
+		if iterator.HasNext() {
+			sb.WriteString(", ")
 		}
 	}
 
-	buffer.WriteString("]")
+	sb.WriteString("]")
 
-	return buffer.String()
+	return sb.String()
 }
